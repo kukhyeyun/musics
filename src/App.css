@@ -1,0 +1,341 @@
+/* src/App.css */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: #f9fafb;
+  color: #111827;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+
+.header {
+  padding: 16px 32px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.header-user {
+  color: #6b7280;
+}
+
+/* MAIN */
+
+.main {
+  max-width: 960px;
+  margin: 24px auto 40px;
+  padding: 0 16px 32px;
+}
+
+.section {
+  margin: 24px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 12px;
+}
+
+.section-body {
+  padding: 8px 0 0;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.button-row.center {
+  justify-content: center;
+}
+
+/* BUTTONS */
+
+.btn {
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease,
+    box-shadow 0.15s ease;
+}
+
+.btn:hover {
+  background: #f3f4f6;
+  transform: translateY(-1px);
+}
+
+.btn.primary {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.btn.primary:hover {
+  background: #1d4ed8;
+}
+
+.btn.secondary {
+  background: #f97316;
+  border-color: #f97316;
+  color: #111827;
+}
+
+.btn.toggle {
+  min-width: 120px;
+}
+
+.btn.small {
+  font-size: 13px;
+  padding: 4px 10px;
+}
+
+.btn.selected {
+  background: #111827;
+  color: #f9fafb;
+  border-color: #111827;
+}
+
+.btn.active-right {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.btn.active-left {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: #111827;
+}
+
+/* SCORE INFO */
+
+.current-score {
+  margin-top: 12px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.score-name {
+  font-weight: 600;
+}
+
+.score-id {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.sub-title {
+  margin-top: 16px;
+  font-size: 14px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.chord-status {
+  margin-top: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.chord-status span {
+  font-weight: 600;
+}
+
+/* 🎹 PIANO KEYBOARD */
+
+.piano-wrapper {
+  padding: 12px 8px 4px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.piano-label {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.piano-sub {
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.piano-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
+.piano-row + .piano-row {
+  margin-top: 6px;
+}
+
+.piano-key {
+  min-width: 40px;
+  padding: 6px 4px;
+  font-size: 11px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+  user-select: none;
+}
+
+.piano-key.white {
+  background: #ffffff;
+}
+
+.piano-key.black {
+  background: #111827;
+  color: #f9fafb;
+}
+
+.piano-key.selected {
+  box-shadow: 0 0 0 2px #2563eb;
+}
+
+/* 🎼 STAFF RENDERER */
+
+.staff-card {
+  margin-top: 10px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 12px 8px;
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+
+  /* 🔥 오선지가 클릭을 가로막지 않도록 설정 */
+  pointer-events: none;
+}
+
+.staff-card svg {
+  width: 720px;
+  height: 220px;
+
+  /* 🔥 SVG 자체도 클릭 차단 안 하게 */
+  pointer-events: none;
+}
+
+.staff-description {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* 기록 카드 */
+
+.record-card {
+  margin-top: 8px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.record-row {
+  padding: 4px 2px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.record-row:last-child {
+  border-bottom: none;
+}
+
+.record-row.empty {
+  text-align: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+.record-notes {
+  font-weight: 500;
+}
+
+.record-user {
+  color: #6b7280;
+}
+
+/* 반응형 */
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .staff-card svg {
+    width: 600px;
+  }
+}
+/* 오선지 SVG 클릭 차단 (강제 적용) */
+.staff-card,
+.staff-card *,
+.staff-card svg,
+.staff-card svg * {
+  pointer-events: none !important;
+}
+
+/* 피아노 및 버튼 영역 클릭 활성화 */
+.piano-wrapper,
+.piano-wrapper *,
+.note-controls,
+.note-controls * {
+  pointer-events: auto !important;
+}
