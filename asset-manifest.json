@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/musics/static/css/main.c687f0ae.css",
+    "main.js": "/musics/static/js/main.bcf398bd.js",
+    "index.html": "/musics/index.html",
+    "main.c687f0ae.css.map": "/musics/static/css/main.c687f0ae.css.map",
+    "main.bcf398bd.js.map": "/musics/static/js/main.bcf398bd.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c687f0ae.css",
+    "static/js/main.bcf398bd.js"
+  ]
+}
