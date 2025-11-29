@@ -10,13 +10,13 @@ import {
   where,
 } from "firebase/firestore";
 
-import { db } from "./firebase"; // 로그인 제거 → auth 불필요
+import { db } from "./firebase";
 
 import Section from "./components/Section";
 import PianoKeyboard from "./components/PianoKeyboard";
 import InputRecord from "./components/InputRecord";
 import StaffRenderer from "./StaffRenderer";
-import { calculateMeasureIndex, durationToBeats } from "./utils/measure";
+import { durationToBeats } from "./utils/measure";
 import { playScoreEvents } from "./utils/playback";
 import "./App.css";
 
@@ -26,10 +26,10 @@ function generateScoreId() {
 }
 
 const DURATIONS = [
-  { label: "온음표", value: "w" }, // 4박
-  { label: "2분음표", value: "h" }, // 2박
-  { label: "4분음표", value: "q" }, // 1박
-  { label: "8분음표", value: "8" }, // 0.5박
+  { label: "온음표", value: "w" },
+  { label: "2분음표", value: "h" },
+  { label: "4분음표", value: "q" },
+  { label: "8분음표", value: "8" },
 ];
 
 function useAliasMap(notes) {
@@ -68,15 +68,15 @@ function App() {
   const [currentScoreId, setCurrentScoreId] = useState(null);
   const [notes, setNotes] = useState([]);
 
-  const [hand, setHand] = useState("RH"); // 오른손 / 왼손
-  const [mode, setMode] = useState("single"); // 단일음 / 화음
+  // 💥 왼손 삭제 — 항상 오른손으로 고정
+  const hand = "RH";
+
+  const [mode, setMode] = useState("single");
   const [selectedDuration, setSelectedDuration] = useState("q");
   const [selectedChordKeys, setSelectedChordKeys] = useState([]);
 
-  // ❗ 사용자 제거 ⇒ 익명 사용자 ID 하나 고정
   const localUserId = "anonymous-user";
 
-  // scoreId 초기화
   useEffect(() => {
     let savedId = localStorage.getItem("currentScoreId");
     if (!savedId) {
@@ -87,7 +87,6 @@ function App() {
     setCurrentScoreId(savedId);
   }, []);
 
-  // Firestore notes 구독
   useEffect(() => {
     if (!currentScoreId) return;
 
@@ -104,11 +103,11 @@ function App() {
         result.push({
           id: doc.id,
           scoreId: d.scoreId,
-          hand: d.hand,
           keys: d.keys || [],
           isRest: !!d.isRest,
           duration: d.duration,
           userId: d.userId,
+          createdAt: d.createdAt,
           shiftBeats: d.shiftBeats || 0,
         });
       });
@@ -121,26 +120,17 @@ function App() {
   const aliasMap = useAliasMap(notes);
   const timeline = useMemo(() => buildTimeline(notes), [notes]);
 
-  // 🔥 자동 마디 넘김 포함 addEvent
   const addEvent = async ({ keys, isRest, duration }) => {
-    if (!currentScoreId) {
-      alert("악보 ID가 아직 초기화되지 않았습니다.");
-      return;
-    }
+    if (!currentScoreId) return;
 
-    // 1) 현재까지 쌓인 전체 박자
     const totalBeat = notes.reduce(
       (acc, n) => acc + durationToBeats(n.duration),
       0
     );
 
-    // 2) 이번 마디에서 이미 채워진 박자
     const usedInMeasure = totalBeat % 4;
-
-    // 3) 새로 입력되는 음표의 박자
     const addBeats = durationToBeats(duration);
 
-    // 4) 자동 마디 넘김 계산
     let shiftBeats = 0;
     if (usedInMeasure + addBeats > 4) {
       shiftBeats = 4 - usedInMeasure;
@@ -148,7 +138,6 @@ function App() {
 
     const docData = {
       scoreId: currentScoreId,
-      hand,
       keys: isRest ? [] : keys,
       isRest: !!isRest,
       duration,
@@ -161,11 +150,10 @@ function App() {
       await addDoc(collection(db, "notes"), docData);
     } catch (err) {
       console.error(err);
-      alert("음표 저장 중 오류가 발생했습니다.");
+      alert("음표 저장 오류");
     }
   };
 
-  // 피아노 키 클릭 시
   const handleKeyClick = (keyObj) => {
     const vexKey = keyObj.vexKey;
 
@@ -181,7 +169,7 @@ function App() {
 
   const handleSaveChord = () => {
     if (selectedChordKeys.length === 0) {
-      alert("선택된 화음이 없습니다.");
+      alert("화음이 없습니다.");
       return;
     }
     addEvent({
@@ -192,12 +180,10 @@ function App() {
     setSelectedChordKeys([]);
   };
 
-  // 쉼표 입력
   const handleRest = (duration) => {
     addEvent({ keys: [], isRest: true, duration });
   };
 
-  // 새 악보
   const handleNewScore = () => {
     const newId = generateScoreId();
     setCurrentScoreId(newId);
@@ -211,11 +197,11 @@ function App() {
     }
   };
 
-  // 악보 불러오기
   const handleLoadScore = () => {
     const raw = localStorage.getItem("scoreIds");
     const arr = raw ? JSON.parse(raw) : [];
     if (arr.length === 0) return alert("저장된 악보가 없습니다.");
+
     const id = prompt("불러올 악보 ID:\n" + arr.join("\n"));
     if (id && arr.includes(id)) {
       setCurrentScoreId(id);
@@ -228,7 +214,7 @@ function App() {
       await playScoreEvents(notes);
     } catch (err) {
       console.error(err);
-      alert("재생 중 오류가 발생했습니다.");
+      alert("재생 오류");
     }
   };
 
@@ -246,8 +232,6 @@ function App() {
     <div className="page">
       <header className="header">
         <div className="header-title">🎵 협업 작곡 웹앱 (베타)</div>
-
-        {/* 로그인 완전 제거된 영역 */}
         <div className="header-right">🔥 자유 입력 모드</div>
       </header>
 
@@ -255,36 +239,11 @@ function App() {
         {/* 악보 관리 */}
         <Section title="악보 관리">
           <div className="button-row">
-            <button className="btn" onClick={handleNewScore}>
-              📂 새 악보 만들기
-            </button>
-            <button className="btn" onClick={handleLoadScore}>
-              📁 내 악보 불러오기
-            </button>
-            <button className="btn secondary" onClick={handlePlay}>
-              🎧 전체 악보 재생
-            </button>
+            <button className="btn" onClick={handleNewScore}>📂 새 악보</button>
+            <button className="btn" onClick={handleLoadScore}>📁 불러오기</button>
+            <button className="btn secondary" onClick={handlePlay}>🎧 전체 재생</button>
           </div>
-          <div>현재 작업 중인 악보: <b>무제 악보</b></div>
           <div>ID: {currentScoreId}</div>
-        </Section>
-
-        {/* 손 선택 */}
-        <Section title="손 선택">
-          <div className="button-row center">
-            <button
-              className={"btn toggle " + (hand === "RH" ? "active-right" : "")}
-              onClick={() => setHand("RH")}
-            >
-              👉 오른손
-            </button>
-            <button
-              className={"btn toggle " + (hand === "LH" ? "active-left" : "")}
-              onClick={() => setHand("LH")}
-            >
-              ✋ 왼손
-            </button>
-          </div>
         </Section>
 
         {/* 입력 모드 */}
@@ -296,6 +255,7 @@ function App() {
             >
               🎵 단일음
             </button>
+
             <button
               className={"btn toggle " + (mode === "chord" ? "active-left" : "")}
               onClick={() => setMode("chord")}
@@ -303,27 +263,27 @@ function App() {
               🎵🎵 화음
             </button>
           </div>
+
           <div className="chord-status">
             현재 선택된 화음: <span>{chordLabel}</span>
           </div>
+
           {mode === "chord" && (
             <div className="button-row center">
               <button className="btn primary" onClick={handleSaveChord}>
-                선택된 화음 저장
+                화음 저장
               </button>
             </div>
           )}
         </Section>
 
         {/* 음 길이 */}
-        <Section title="음 길이 선택">
+        <Section title="길이 선택">
           <div className="button-row center">
             {DURATIONS.map((d) => (
               <button
                 key={d.value}
-                className={
-                  "btn small " + (selectedDuration === d.value ? "selected" : "")
-                }
+                className={"btn small " + (selectedDuration === d.value ? "selected" : "")}
                 onClick={() => setSelectedDuration(d.value)}
               >
                 {d.label}
@@ -331,14 +291,10 @@ function App() {
             ))}
           </div>
 
-          <div className="sub-title">쉼표 입력</div>
+          <div className="sub-title">쉼표</div>
           <div className="button-row center">
-            <button className="btn small" onClick={() => handleRest("q")}>
-              🎵 4분 쉼표
-            </button>
-            <button className="btn small" onClick={() => handleRest("8")}>
-              🎵 8분 쉼표
-            </button>
+            <button className="btn small" onClick={() => handleRest("q")}>4분 쉼표</button>
+            <button className="btn small" onClick={() => handleRest("8")}>8분 쉼표</button>
           </div>
         </Section>
 
@@ -352,14 +308,11 @@ function App() {
         </Section>
 
         {/* 오선지 */}
-        <Section title="악보 (오선지)">
-          <div className="staff-description">
-            입력된 음표는 4/4 박자 기준으로 자동 정렬됩니다.
-          </div>
+        <Section title="악보">
           <StaffRenderer events={timeline} />
         </Section>
 
-        {/* 입력 기록 */}
+        {/* 기록 */}
         <Section title="입력 기록">
           <InputRecord events={notes} aliasMap={aliasMap} />
         </Section>
